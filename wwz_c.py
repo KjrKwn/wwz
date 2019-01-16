@@ -2,7 +2,7 @@ import numpy as np
 import ctypes
 import numpy.ctypeslib
 
-lib_wwz = np.ctypeslib.load_library("libwwz.so", "./")
+lib_wwz = np.ctypeslib.load_library("libwwz.so", "./wwz")
 
 _DOUBLE_PP = np.ctypeslib.ndpointer(dtype = np.uintp, ndim=1, flags="C")
 ndtype_1darray = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
