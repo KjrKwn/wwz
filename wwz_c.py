@@ -2,16 +2,17 @@ import numpy as np
 import ctypes
 import numpy.ctypeslib
 
-lib_wwz = np.ctypeslib.load_library("libwwz.so", "./wwz")
+# below should be modified
+_lib_wwz = np.ctypeslib.load_library("libwwz.so", "/Users/kawana/anaconda3/envs/myenv/lib/python3.6/site-packages/wwz")
 
 _DOUBLE_PP = np.ctypeslib.ndpointer(dtype = np.uintp, ndim=1, flags="C")
-ndtype_1darray = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
+_ndtype_1darray = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
 
-lib_wwz.wwz_c.argtypes = [
-        ndtype_1darray,
-        ndtype_1darray,
-        ndtype_1darray,
-        ndtype_1darray,
+_lib_wwz.wwz_c.argtypes = [
+        _ndtype_1darray,
+        _ndtype_1darray,
+        _ndtype_1darray,
+        _ndtype_1darray,
         ctypes.c_double,
         _DOUBLE_PP,
         _DOUBLE_PP,
@@ -20,7 +21,7 @@ lib_wwz.wwz_c.argtypes = [
         ctypes.c_int
         ]
 
-lib_wwz.wwz_c.restype = None
+_lib_wwz.wwz_c.restype = None
 
 
 def wwz(t_sample_arr,
@@ -53,7 +54,7 @@ def wwz(t_sample_arr,
     pointer_wwa_arr = (wwa_arr.__array_interface__['data'][0] + np.arange(wwa_arr.shape[0])*wwa_arr.strides[0]).astype(np.uintp)
     pointer_wwz_arr = (wwz_arr.__array_interface__['data'][0] + np.arange(wwz_arr.shape[0])*wwz_arr.strides[0]).astype(np.uintp)
 
-    lib_wwz.wwz_c(
+    _lib_wwz.wwz_c(
             t_sample_arr.astype(np.float64, copy=False),
             omega_sample_arr.astype(np.float64, copy=False),
             t_data_arr.astype(np.float64, copy=False),
