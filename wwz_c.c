@@ -328,6 +328,8 @@ int main() {
 
     free(wwa);
     free(wwz);
+    free(base_wwz);
+    free(base_wwa);
 
     printf("end\n");
 }

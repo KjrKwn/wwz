@@ -38,7 +38,7 @@ def wwz(t_sample_arr,
     freq_sample_arr  numpy ndarray(ndim=1) array of frequency sampled
     t_data_arr       numpy ndarray(ndim=1) array of time of data
     x_data_arr       numpy ndarray(ndim=1) array of value of data
-    c_coef(optional) float                                   coefficeint. dafault value is 0.0125
+    c_coef(optional) float                 coefficeint. dafault value is 0.0125
 
     -----Return values-----
     (wwz, wwa)
