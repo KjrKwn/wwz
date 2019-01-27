@@ -178,6 +178,9 @@ ETC = Makefile
 libwwz.so: wwz_c.c $(ETC)
 	$(CC) $(CLIBS) $(CFLAGS) -shared wwz_c.c -o libwwz.so
 
+a.out: wwz_c.c $(ETC)
+	$(CC) $(CLIBS) $(CFLAGS) wwz_c.c -o a.out
+
 clean:
 	# rm -f
 	rm -f *~

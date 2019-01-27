@@ -15,8 +15,8 @@ void wwz_c(double t_sample_arr[],
            double t_data_arr[],
            double x_data_arr[],
            double c_coef,
-           double **out_wwz,
-           double **out_wwa,
+           double out_wwz[],
+           double out_wwa[],
            int    N_t_sample_arr,
            int    N_omega_sample_arr,
            int    N_t_data_arr) {
@@ -43,12 +43,13 @@ void wwz_c(double t_sample_arr[],
 
     double bufd;
     double bufds[5] = {0., 0., 0., 0., 0.};
+
 #ifdef WATCHTIME
     FILE *fptime;
-    char tempchar[1024];
     double times[10];
     double tstart;
     int i_time = 0;
+    char tempchar[1024];
 
     sprintf(tempchar, "time_log_from_c.txt");
     fptime = fopen(tempchar, "w");
@@ -74,15 +75,15 @@ void wwz_c(double t_sample_arr[],
                 weights[k] = exp(- c_coef * pow((omega * (t_data_arr[k] - tau)), 2));
                 sum_weights += weights[k];
             }
-#ifdef DEBUG
-            printf ("\n");
-            printf ("omega %+e   tau %+e\n", omega, tau);
-            printf ("weights\n");
-            for (k = 0; k < N_t_data_arr; k++) {
-                printf("%+.2lf ", weights[k]);
-            }
-            printf ("\n");
-#endif
+/* #ifdef DEBUG */
+/*             printf ("\n"); */
+/*             printf ("omega %+e   tau %+e\n", omega, tau); */
+/*             printf ("weights\n"); */
+/*             for (k = 0; k < N_t_data_arr; k++) { */
+/*                 printf("%+.2lf ", weights[k]); */
+/*             } */
+/*             printf ("\n"); */
+/* #endif */
 
 #ifdef WATCHTIME
             times[i_time] += (double)(clock() - tstart);
@@ -122,22 +123,22 @@ void wwz_c(double t_sample_arr[],
 #ifndef DEBUG
             calc_inverse_matrix_of_3x3(S_matrix_inv1, S_matrix_inv1);
 #else
-            /* for (k = 0; k < 3; k++) { */
-            /*     for (l = 0; l < 3; l++) { */
-            /*         S_matrix_inv1[k][l] = 1. + 3.*k + l; */
-            /*     } */
-            /* } */
-            /* S_matrix_inv1[0][0] = 0.; */
-            printf("S_matrix\n");
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[0][0], S_matrix_inv1[0][1], S_matrix_inv1[0][2]);
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[1][0], S_matrix_inv1[1][1], S_matrix_inv1[1][2]);
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[2][0], S_matrix_inv1[2][1], S_matrix_inv1[2][2]);
-            /* double out_matrix[3][3]; */
-            calc_inverse_matrix_of_3x3(S_matrix_inv1, S_matrix_inv1);
-            printf("S_matrix_inv1\n");
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[0][0], S_matrix_inv1[0][1], S_matrix_inv1[0][2]);
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[1][0], S_matrix_inv1[1][1], S_matrix_inv1[1][2]);
-            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[2][0], S_matrix_inv1[2][1], S_matrix_inv1[2][2]);
+//            /* for (k = 0; k < 3; k++) { */
+//            /*     for (l = 0; l < 3; l++) { */
+//            /*         S_matrix_inv1[k][l] = 1. + 3.*k + l; */
+//            /*     } */
+//            /* } */
+//            /* S_matrix_inv1[0][0] = 0.; */
+//            printf("S_matrix\n");
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[0][0], S_matrix_inv1[0][1], S_matrix_inv1[0][2]);
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[1][0], S_matrix_inv1[1][1], S_matrix_inv1[1][2]);
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[2][0], S_matrix_inv1[2][1], S_matrix_inv1[2][2]);
+//            /* double out_matrix[3][3]; */
+//            calc_inverse_matrix_of_3x3(S_matrix_inv1, S_matrix_inv1);
+//            printf("S_matrix_inv1\n");
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[0][0], S_matrix_inv1[0][1], S_matrix_inv1[0][2]);
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[1][0], S_matrix_inv1[1][1], S_matrix_inv1[1][2]);
+//            printf("%+.2lf %+.2lf %+.2lf\n", S_matrix_inv1[2][0], S_matrix_inv1[2][1], S_matrix_inv1[2][2]);
 #endif
 
 #ifdef WATCHTIME
@@ -194,16 +195,16 @@ void wwz_c(double t_sample_arr[],
             Vx1   = bufds[2] / sum_weights - pow(bufds[1] / sum_weights, 2);
             Vy1   = bufds[4] / sum_weights - pow(bufds[3] / sum_weights, 2);
 
-            out_wwz[i][j] = 0.5 * (Neff1 - 3.) * Vy1 /  (Vx1 - Vy1);
-            out_wwa[i][j] = sqrt(y_coef_arr1[1] * y_coef_arr1[1] + y_coef_arr1[2] * y_coef_arr1[2]);
+            out_wwz[i * N_omega_sample_arr + j] = 0.5 * (Neff1 - 3.) * Vy1 /  (Vx1 - Vy1);
+            out_wwa[i * N_omega_sample_arr + j] = sqrt(y_coef_arr1[1] * y_coef_arr1[1] + y_coef_arr1[2] * y_coef_arr1[2]);
 
-#ifdef DEBUG
-            printf("Neff %+e\n", Neff1);
-            printf("Vx1  %+e\n", Vx1);
-            printf("Vy1  %+e\n", Vy1);
-            printf("wwz  %+e\n", out_wwz[i][j]);
-            printf("wwa  %+e\n", out_wwa[i][j]);
-#endif
+/* #ifdef DEBUG */
+/*             printf("Neff %+e\n", Neff1); */
+/*             printf("Vx1  %+e\n", Vx1); */
+/*             printf("Vy1  %+e\n", Vy1); */
+/*             printf("wwz  %+e\n", out_wwz[i * N_omega_sample_arr + j]); */
+/*             printf("wwa  %+e\n", out_wwa[i * N_omega_sample_arr + j]); */
+/* #endif */
 
 #ifdef WATCHTIME
             times[i_time] += (double)(clock() - tstart);
@@ -268,10 +269,10 @@ int calc_inverse_matrix_of_3x3(double (*mat)[3], double (*out)[3]){
 
 #ifdef DEBUG
 int main() {
-    int i;
-    int N_t_sample_arr = 100;
-    int N_omega_sample_arr = 20;
-    int N_t_data_arr = 60;
+    int i, j;
+    int N_t_sample_arr = 1000;
+    int N_omega_sample_arr = 1000;
+    int N_t_data_arr = 200;
     double t_sample_arr[N_t_sample_arr];
     double omega_sample_arr[N_omega_sample_arr];
     double t_data_arr[N_t_data_arr];
@@ -288,6 +289,26 @@ int main() {
         wwz[i] = base_wwz + i * N_omega_sample_arr;
         wwa[i] = base_wwa + i * N_omega_sample_arr;
     }
+
+    char tempchar[1024];
+    FILE *fpwwz;
+    FILE *fpwwa;
+
+    sprintf(tempchar, "wwz.dat");
+    fpwwz = fopen(tempchar, "w");
+    if(fpwwz==NULL) {
+        printf("Can't open file %s \n", tempchar);
+        exit(1);
+    }
+    sprintf(tempchar, "wwa.dat");
+    fpwwa = fopen(tempchar, "w");
+    if(fpwwa==NULL) {
+        printf("Can't open file %s \n", tempchar);
+        exit(1);
+    }
+
+
+
     /* double wwa[N_t_sample_arr][N_omega_sample_arr]; */
     /* double (*wwz)[N_omega_sample_arr]; */
     /* double (*wwa)[N_omega_sample_arr]; */
@@ -296,24 +317,24 @@ int main() {
 
     srand((unsigned int)time(NULL));
     for (i = 0; i < N_t_data_arr; i++) {
-        t_data_arr[i] = i * 0.208 + 0.001 * (double)rand() / RAND_MAX;
+        t_data_arr[i] = i + 0.001 * (double)rand() / RAND_MAX;
         x_data_arr[i] = 3 * sin(1. * t_data_arr[i]) + 0.001 * (double)rand() / RAND_MAX;
     }
     for (i = 0; i < N_t_sample_arr; i++) {
-        t_sample_arr[i] = i * 0.125;
+        t_sample_arr[i] = i * (1. * N_t_data_arr/ N_t_sample_arr);
     }
     for (i = 0; i < N_omega_sample_arr; i++) {
-        omega_sample_arr[i] = (i+1) *0.25;
+        omega_sample_arr[i] = (i+1) *10 / N_omega_sample_arr;
     }
 
     /* t_sample_arr[0] = 5.; */
     /* omega_sample_arr[0] = 1.; */
 
-    printf("\n");
-    for (i = 0; i < N_t_data_arr; i++) {
-        printf("%+e %+e\n", t_data_arr[i], x_data_arr[i]);
-    }
-    printf("\n");
+    /* printf("\n"); */
+    /* for (i = 0; i < N_t_data_arr; i++) { */
+    /*     printf("%+e %+e\n", t_data_arr[i], x_data_arr[i]); */
+    /* } */
+    /* printf("\n"); */
 
     wwz_c(t_sample_arr,
           omega_sample_arr,
@@ -325,6 +346,16 @@ int main() {
           N_t_sample_arr,
           N_omega_sample_arr,
           N_t_data_arr);
+
+    for (i = 0; i < N_t_sample_arr; i++) {
+        for (j = 0; j < N_omega_sample_arr; j++) {
+            fprintf(fpwwz, "%+e ", wwz[i][j]);
+            fprintf(fpwwa, "%+e ", wwz[i][j]);
+        }
+            fprintf(fpwwz, "\n");
+            fprintf(fpwwa, "\n");
+    }
+
 
     free(wwa);
     free(wwz);

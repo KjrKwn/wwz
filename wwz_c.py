@@ -5,7 +5,7 @@ import numpy.ctypeslib
 # below should be modified
 _lib_wwz = np.ctypeslib.load_library("libwwz.so", "/Users/kawana/anaconda3/envs/myenv/lib/python3.6/site-packages/wwz")
 
-_DOUBLE_PP = np.ctypeslib.ndpointer(dtype = np.uintp, ndim=1, flags="C")
+#  _DOUBLE_PP = np.ctypeslib.ndpointer(dtype = np.uintp, ndim=1, flags="C")
 _ndtype_1darray = np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags="C_CONTIGUOUS")
 
 _lib_wwz.wwz_c.argtypes = [
@@ -14,8 +14,10 @@ _lib_wwz.wwz_c.argtypes = [
         _ndtype_1darray,
         _ndtype_1darray,
         ctypes.c_double,
-        _DOUBLE_PP,
-        _DOUBLE_PP,
+        _ndtype_1darray,
+        _ndtype_1darray,
+        #  _DOUBLE_PP,
+        #  _DOUBLE_PP,
         ctypes.c_int,
         ctypes.c_int,
         ctypes.c_int
@@ -49,10 +51,8 @@ def wwz(t_sample_arr,
 
     omega_sample_arr = 2 * np.pi * freq_sample_arr
 
-    wwa_arr = np.zeros((t_sample_arr.size, omega_sample_arr.size), dtype=np.float64)
-    wwz_arr = np.zeros((t_sample_arr.size, omega_sample_arr.size), dtype=np.float64)
-    pointer_wwa_arr = (wwa_arr.__array_interface__['data'][0] + np.arange(wwa_arr.shape[0])*wwa_arr.strides[0]).astype(np.uintp)
-    pointer_wwz_arr = (wwz_arr.__array_interface__['data'][0] + np.arange(wwz_arr.shape[0])*wwz_arr.strides[0]).astype(np.uintp)
+    wwa_arr = np.zeros((t_sample_arr.size * omega_sample_arr.size), dtype=np.float64)
+    wwz_arr = np.zeros((t_sample_arr.size * omega_sample_arr.size), dtype=np.float64)
 
     _lib_wwz.wwz_c(
             t_sample_arr.astype(np.float64, copy=False),
@@ -60,14 +60,14 @@ def wwz(t_sample_arr,
             t_data_arr.astype(np.float64, copy=False),
             x_data_arr.astype(np.float64, copy=False),
             c_coef,
-            pointer_wwz_arr,
-            pointer_wwa_arr,
+            wwz_arr,
+            wwa_arr,
             t_sample_arr.size,
             omega_sample_arr.size,
             t_data_arr.size
             )
 
-    return wwz_arr, wwa_arr
+    return wwz_arr.reshape(t_sample_arr.size, omega_sample_arr.size), wwa_arr.reshape(t_sample_arr.size, omega_sample_arr.size)
 
 #  cdef extern from "wwz_my.c":
 #      cdef void wwz_c(double t_sample_arr[],
